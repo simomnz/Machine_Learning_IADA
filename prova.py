@@ -1,1 +1,0 @@
-#simone sulis gay
