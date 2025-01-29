@@ -1,15 +1,19 @@
-import tkinter as tk
-from tkinter import PhotoImage
-import pandas as pd
-from PIL import Image, ImageTk  
-from dataAnalysis import dataAnalysis
-from classifiers import classifiers
-from regressors import regressors
+# import tkinter as tk
+# from tkinter import PhotoImage
+# import pandas as pd
+# from PIL import Image, ImageTk  
+# from dataAnalysis import dataAnalysis
+# from classifiers import classifiers
+# from regressors import regressors
 
-df = pd.read_csv('ObesityDataSet_raw_and_data_sinthetic.csv', encoding='UTF-8')
+# df = pd.read_csv('ObesityDataSet_raw_and_data_sinthetic.csv', encoding='UTF-8')
 
 def menu():
-    root = tk.Tk()
+    print("Premi 1 per performare un'analisi dei dati")
+    print("Premi 2 per usare un regressore")
+    print("Premi 3 per usare un classificatore")
+
+    '''root = tk.Tk()
     root.title("Sborra")
     root.geometry("1000x800")
     root.config(bg="#E0E0E0")
@@ -70,4 +74,4 @@ def menu():
     img_label.image = image_tk
     img_label.pack(expand=True)
 
-    root.mainloop()
+    root.mainloop()'''

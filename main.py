@@ -21,24 +21,25 @@ def main():
     df = pd.read_csv('ObesityDataSet_raw_and_data_sinthetic.csv', encoding='UTF-8')
     # print(type(df))
 
-    menu()
 
-    # while True:
-        # # choice = input()
-
-        # # match choice:
-        # #     case "1":
-        # #         # analisi dei dati
-        # #         dataAnalysis(df)
-        # #     case "2":
-        # #         # regressori
-        # #         regressors(df)
-        # #     case "3":
-        # #         # classificatori
-        # #         classifiers(df)
-        # #     case _:
-        # #         break
+    while True:
+        menu()
         
+        choice = input()
 
+        match choice:
+            case "1":
+                # analisi dei dati
+                dataAnalysis(df)
+            case "2":
+                # regressori
+                regressors(df)
+            case "3":
+                # classificatori
+                classifiers(df)
+            case _:
+                break
+        
+        
 if __name__ == "__main__":
     main() # lascia la riga vuota alla fine del file

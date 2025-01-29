@@ -1,27 +1,13 @@
-import time
-import pandas as pd
+# import time
+# import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 
 def dataAnalysis(df: "pandas.DataFrame"): # per non importare pandas gli dò il tipo così (funzionerebbe anche senza, però mi dà fastidio) sborra
-    print("sto analizzando il tuo ano...")
-    print("analisi al 0%")
-    time.sleep(0.5)
-    print("analisi al 20%")
-    time.sleep(0.5)
-    print("analisi al 50%")
-    time.sleep(0.5)
-    print("analisi al 69%")
-    time.sleep(0.5)
-    print("analisi al 95%")
-    time.sleep(0.5)
-    print("analisi completata!")
-    print("risultato: sei Super gay!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
-    # Caricamento del dataset
-    df = pd.read_csv('ObesityDataSet_raw_and_data_sinthetic.csv', encoding='UTF-8')
+    
+    
     # Informazioni generali
     print(df.info())
     print(f"Numero di righe: {df.shape[0]}, Numero di colonne: {df.shape[1]}")
@@ -29,7 +15,7 @@ def dataAnalysis(df: "pandas.DataFrame"): # per non importare pandas gli dò il 
     # Valori mancanti
     missing_values = df.isnull().sum()
     missing_percentage = (missing_values / len(df)) * 100
-    print(pd.DataFrame({'Valori Mancanti': missing_values, 'Percentuale (%)': missing_percentage}))
+    print(f"Valori Mancanti: {missing_values}, Percentuale (%): {missing_percentage}")
 
     # Statistiche descrittive
     print(df.describe())
@@ -63,5 +49,5 @@ def dataAnalysis(df: "pandas.DataFrame"): # per non importare pandas gli dò il 
     for col in df.select_dtypes(include=['object']).columns:
         print(f"Colonna: {col}")
         print(df[col].value_counts())
-        print("\n")
+        print("\n") # saltiamo due righe
 
