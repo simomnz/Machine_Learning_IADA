@@ -2,7 +2,7 @@ import pandas as pd
 from menu import menu
 from dataAnalysis import dataAnalysis
 from classifiers import classifiers
-from regressors import regressors
+
 
 def main():
     '''
@@ -32,9 +32,6 @@ def main():
                 # analisi dei dati
                 dataAnalysis(df)
             case "2":
-                # regressori
-                regressors(df)
-            case "3":
                 # classificatori
                 classifiers(df)
             case _:
