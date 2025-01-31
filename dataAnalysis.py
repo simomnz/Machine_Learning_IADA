@@ -1,53 +1,65 @@
-# import time
-# import pandas as pd
-import numpy as np
+# dataAnalysis.py
+
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-
-def dataAnalysis(df: "pandas.DataFrame"): # per non importare pandas gli dò il tipo così (funzionerebbe anche senza, però mi dà fastidio) sborra
-    
+def dataAnalysis(df: pd.DataFrame):
+    """
+    Esegue l'analisi dei dati e ritorna una stringa con i risultati.
+    Eventuali visualizzazioni vengono mostrate direttamente.
+    """
+    buffer = ""
     
     # Informazioni generali
-    print(df.info())
-    print(f"Numero di righe: {df.shape[0]}, Numero di colonne: {df.shape[1]}")
+    buffer += str(df.info()) + "\n"
+    buffer += f"Numero di righe: {df.shape[0]}, Numero di colonne: {df.shape[1]}\n\n"
 
     # Valori mancanti
     missing_values = df.isnull().sum()
     missing_percentage = (missing_values / len(df)) * 100
-    print(f"Valori Mancanti: {missing_values}, Percentuale (%): {missing_percentage}")
+    buffer += f"Valori Mancanti:\n{missing_values}\n"
+    buffer += f"Percentuale (%):\n{missing_percentage}\n\n"
 
     # Statistiche descrittive
-    print(df.describe())
-    print(df.describe(include='all'))
-
-    # Distribuzioni
-    df.hist(figsize=(10, 8), bins=20)
-    plt.tight_layout()
-    plt.show()
+    buffer += "Statistiche Descrittive:\n"
+    buffer += str(df.describe()) + "\n\n"
+    buffer += "Statistiche Descrittive (Include tutti i tipi):\n"
+    buffer += str(df.describe(include='all')) + "\n\n"
 
     # Duplicati
     duplicati = df.duplicated().sum()
-    print(f"Numero di duplicati: {duplicati}")
-    df = df.drop_duplicates()
+    buffer += f"Numero di duplicati: {duplicati}\n\n"
 
-    # Outlier (IQR)
-    Q1 = df.quantile(0.25)
-    Q3 = df.quantile(0.75)
+    # Outlier
+    variabiliNumeriche = ["Age", "Height", "Weight", "FCVC", "NCP", "CH2O", "FAF", "TUE"]
+    Q1 = df[variabiliNumeriche].quantile(0.25)
+    Q3 = df[variabiliNumeriche].quantile(0.75)
     IQR = Q3 - Q1
-    outlier = ((df < (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR))).sum()
-    print("Outlier per colonna:")
-    print(outlier)
+    # Calcola outliers per colonna numerica
+    outlier = {}
+    for col in variabiliNumeriche:
+        lower = Q1[col] - 1.5 * IQR[col]
+        upper = Q3[col] + 1.5 * IQR[col]
+        count = ((df[col] < lower) | (df[col] > upper)).sum()
+        outlier[col] = count
+    buffer += "Outlier per colonna:\n"
+    buffer += str(outlier) + "\n\n"
 
-    # Matrice di correlazione
+    # Valori unici
+    buffer += "Valori Unici per Colonna Categoriale:\n"
+    for col in df.select_dtypes(include=['object']).columns:
+        buffer += f"Colonna: {col}\n"
+        buffer += str(df[col].value_counts()) + "\n\n"
+
+    return buffer
+
+def show_correlation_matrix(df: pd.DataFrame):
+    """
+    Mostra la matrice di correlazione utilizzando seaborn.
+    """
     correlation_matrix = df.corr()
+    plt.figure(figsize=(10, 8))
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
     plt.title("Matrice di Correlazione")
     plt.show()
-
-    # Valori unici
-    for col in df.select_dtypes(include=['object']).columns:
-        print(f"Colonna: {col}")
-        print(df[col].value_counts())
-        print("\n") # saltiamo due righe
-
