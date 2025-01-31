@@ -10,6 +10,17 @@ from evaluation import evaluate_preprocessing_combinations
 
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
+
+
+#   __  __ ______ _   _ _    _ 
+#  |  \/  |  ____| \ | | |  | |
+#  | \  / | |__  |  \| | |  | |
+#  | |\/| |  __| | . ` | |  | |
+#  | |  | | |____| |\  | |__| |
+#  |_|  |_|______|_| \_|\____/ 
+                             
+                           
+
 def menu(df: pd.DataFrame):
     class MLApp:
         def __init__(self, master, df):
@@ -18,18 +29,23 @@ def menu(df: pd.DataFrame):
             self.master.geometry("800x600")
             self.df = df
 
+            # Pulsante per l'analisi dei dati
             self.analysis_button = tk.Button(master, text="Analisi Dati", command=self.perform_data_analysis, width=25, height=2)
             self.analysis_button.pack(pady=10)
 
+            # Pulsante per addestrare un classificatore
             self.classifier_button = tk.Button(master, text="Addestra Classificatore", command=self.open_classifier_window, width=25, height=2)
             self.classifier_button.pack(pady=10)
 
+            # Pulsante per tecniche di preprocessing
             self.preprocessing_button = tk.Button(master, text="Tecniche Preprocessing", command=self.open_preprocessing_window, width=25, height=2)
             self.preprocessing_button.pack(pady=10)
 
+            # Pulsante per uscire dall'applicazione
             self.exit_button = tk.Button(master, text="Esci", command=master.quit, width=25, height=2)
             self.exit_button.pack(pady=10)
 
+            # Area di testo per loggare i messaggi
             self.log_text = tk.Text(master, height=10, width=80)
             self.log_text.pack(pady=10)
 
@@ -48,7 +64,6 @@ def menu(df: pd.DataFrame):
                 analysis_window.title("Analisi dei Dati")
                 analysis_window.geometry("1000x800")
 
-                # Frame per le statistiche
                 stats_frame = tk.Frame(analysis_window)
                 stats_frame.pack(pady=10, fill=tk.BOTH, expand=True)
 
@@ -73,6 +88,7 @@ def menu(df: pd.DataFrame):
                 stats_tree.column("Min", width=100)
                 stats_tree.column("Max", width=100)
 
+                # Seleziona solo le colonne numeriche
                 numeric_cols = self.df.select_dtypes(include=['float64', 'int64']).columns
                 stats = self.df[numeric_cols].describe().loc[['mean', '50%', 'std', 'min', 'max']].rename(index={'50%': 'median'})
 
@@ -86,7 +102,6 @@ def menu(df: pd.DataFrame):
                         f"{stats.at['max', col]:.2f}"
                     ))
 
-                # Frame per la tabella degli outliers
                 outliers_frame = tk.Frame(analysis_window)
                 outliers_frame.pack(pady=10, fill=tk.BOTH, expand=True)
 
@@ -102,6 +117,7 @@ def menu(df: pd.DataFrame):
                 outliers_tree.column("Column", width=150)
                 outliers_tree.column("Numero di Outliers", width=200)
 
+                # Calcola il numero di outliers per ogni colonna numerica
                 outliers = self.compute_outliers(self.df)
                 for col, count in outliers.items():
                     outliers_tree.insert("", tk.END, values=(col, count))
@@ -116,9 +132,6 @@ def menu(df: pd.DataFrame):
                 self.log(f"Errore nell'analisi dei dati: {e}")
 
         def compute_outliers(self, df: pd.DataFrame) -> dict:
-            """
-            Calcola il numero di outliers per ogni colonna numerica usando il metodo IQR.
-            """
             variabiliNumeriche = ["Age", "Height", "Weight", "FCVC", "NCP", "CH2O", "FAF", "TUE"]
             outliers = {}
             for col in variabiliNumeriche:
@@ -162,26 +175,18 @@ def menu(df: pd.DataFrame):
                 self.log(f"Errore nell'addestramento del classificatore: {e}")
 
         def open_preprocessing_window(self):
-            """
-            Apre una nuova finestra in cui vengono confrontate le prestazioni 
-            di un classificatore (qui Logistic Regression) applicando diverse tecniche
-            di pre-processing.
-            """
             if self.df is None:
                 messagebox.showwarning("Avviso", "Carica prima i dati.")
                 self.log("Tentativo di confronto pre-processing senza dati caricati.")
                 return
 
             try:
-                # Estrai X e y.
                 X = self.df.iloc[:, :-1]
-                X = pd.get_dummies(X)  # Converte le colonne categoriche in variabili numeriche
+                X = pd.get_dummies(X)
                 y = self.df.iloc[:, -1]
 
-                # Definizione del classificatore
                 clf = LogisticRegression(max_iter=1000, random_state=42)
 
-                # Ottieni i risultati del confronto
                 results = evaluate_preprocessing_combinations(X, y, clf)
 
                 prep_window = tk.Toplevel(self.master)
@@ -200,15 +205,12 @@ def menu(df: pd.DataFrame):
                 result_tree.column("Tecnica", width=200)
                 result_tree.column("Accuracy", width=100)
 
-                # Inserisce i risultati nella tabella
                 for tech, acc in results.items():
                     result_tree.insert("", tk.END, values=(tech, f"{acc:.4f}"))
 
-                # Calcola la tecnica migliore
                 best_tech = max(results, key=results.get)
                 best_acc = results[best_tech]
 
-                # Aggiunge una label che indica la migliore tecnica
                 best_label = tk.Label(prep_window, text=f"Miglior tecnica: {best_tech} (Accuracy: {best_acc:.4f})", font=("Helvetica", 12, "bold"))
                 best_label.pack(pady=10)
 

@@ -1,8 +1,8 @@
 import pandas as pd
 from menu import menu
 
-def main():
-    '''
+
+    #'''
     # Potremmo anche fare come scritto nella documentazione del dataset, 
     # ma poi nel yml dobbiamo mettere anche
     # pip install ucimlrepo 
@@ -12,8 +12,10 @@ def main():
     #
     # fetch dataset 
     # estimation_of_obesity_levels_based_on_eating_habits_and_physical_condition = fetch_ucirepo(id=544)
-    '''
-    
+    #'''
+
+def main():
+
     # Carica i dati iniziali
     try:
         # Tenta di leggere il file CSV contenente il dataset
@@ -31,5 +33,4 @@ def main():
     menu(df)
 
 if __name__ == "__main__":
-    # Esegue la funzione main se il file viene eseguito come script principale
-    main()
+    main()  # lascia la riga vuota alla fine del file
