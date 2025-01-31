@@ -7,6 +7,8 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.neural_network import MLPClassifier
 
+from knn import knn
+
 
 def classifiers(df: pd.DataFrame):
 
@@ -42,12 +44,13 @@ def classifiers(df: pd.DataFrame):
             model = DecisionTreeClassifier(max_depth=10, random_state=0) # 10 è il massimo
         case "ann":
             model = MLPClassifier(hidden_layer_sizes=(10, 10), max_iter=1000) # questo robo è potentissimo, fa 0,95
-        case "custom1":
-            pass
+        case "knn":
+            model = knn(k=5, distanceMetric="manhattan")
         case "custom2":
             pass
         case _:
-            pass
+            print("no model selected")
+            exit()
     
     model.fit(trainX, trainY)
     res = model.predict(testX)
