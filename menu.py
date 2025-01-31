@@ -1,34 +1,16 @@
-# menu.py
-
 import tkinter as tk
 from tkinter import messagebox, ttk
 import pandas as pd
 import warnings
 from sklearn.exceptions import ConvergenceWarning
-
-# Nasconde i warning di convergenza di LogisticRegression
-warnings.filterwarnings("ignore", category=ConvergenceWarning)
-
-# Import delle funzioni di analisi e visualizzazione dei dati
 from dataAnalysis import dataAnalysis, show_correlation_matrix
-
-# Import della funzione per l'addestramento dei classificatori (controlla che sia corretto)
 from classifiers import classifiers
-
-# Import per LogisticRegression (attenzione alla maiuscola!)
 from sklearn.linear_model import LogisticRegression
-
-# Import della funzione di valutazione del pre-processing
 from evaluation import evaluate_preprocessing_combinations
 
+warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
 def menu(df: pd.DataFrame):
-    """
-    Crea e avvia l'interfaccia grafica per il menu di Machine Learning.
-    
-    Parameters:
-      - df: pd.DataFrame - Il DataFrame contenente i dati.
-    """
     class MLApp:
         def __init__(self, master, df):
             self.master = master
@@ -36,23 +18,18 @@ def menu(df: pd.DataFrame):
             self.master.geometry("800x600")
             self.df = df
 
-            # Pulsante per l'analisi dei dati
             self.analysis_button = tk.Button(master, text="Analisi Dati", command=self.perform_data_analysis, width=25, height=2)
             self.analysis_button.pack(pady=10)
 
-            # Pulsante per l'addestramento del classificatore
             self.classifier_button = tk.Button(master, text="Addestra Classificatore", command=self.open_classifier_window, width=25, height=2)
             self.classifier_button.pack(pady=10)
 
-            # Pulsante per il confronto delle tecniche di pre-processing
-            self.preprocessing_button = tk.Button(master, text=" Tecniche Preprocessing", command=self.open_preprocessing_window, width=25, height=2)
+            self.preprocessing_button = tk.Button(master, text="Tecniche Preprocessing", command=self.open_preprocessing_window, width=25, height=2)
             self.preprocessing_button.pack(pady=10)
 
-            # Pulsante per uscire
             self.exit_button = tk.Button(master, text="Esci", command=master.quit, width=25, height=2)
             self.exit_button.pack(pady=10)
 
-            # Area di testo per i log
             self.log_text = tk.Text(master, height=10, width=80)
             self.log_text.pack(pady=10)
 
@@ -78,7 +55,6 @@ def menu(df: pd.DataFrame):
                 tk.Label(stats_frame, text="Statistiche Descrittive per Colonna", font=("Helvetica", 14)).pack()
 
                 stats_tree = ttk.Treeview(stats_frame)
-                # Imposta il treeview in modo da mostrare solo le colonne definite (nasconde la colonna vuota)
                 stats_tree["show"] = "headings"
                 stats_tree.pack(fill=tk.BOTH, expand=True)
 
@@ -198,7 +174,6 @@ def menu(df: pd.DataFrame):
 
             try:
                 # Estrai X e y.
-                # NOTA: se X contiene colonne categoriche, trasformiamole in variabili dummy.
                 X = self.df.iloc[:, :-1]
                 X = pd.get_dummies(X)  # Converte le colonne categoriche in variabili numeriche
                 y = self.df.iloc[:, -1]
@@ -216,7 +191,6 @@ def menu(df: pd.DataFrame):
                 tk.Label(prep_window, text="Risultati 5-fold Cross-Validation (Accuracy)", font=("Helvetica", 14)).pack(pady=10)
 
                 result_tree = ttk.Treeview(prep_window)
-                # Nasconde la colonna di default
                 result_tree["show"] = "headings"
                 result_tree.pack(fill=tk.BOTH, expand=True)
 

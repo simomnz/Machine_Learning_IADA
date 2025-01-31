@@ -1,44 +1,50 @@
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances, manhattan_distances
 
+# Definisce una classe K-Nearest Neighbors (KNN)
 class knn:
+    # Inizializza la classe KNN con la metrica di distanza e il numero di vicini (k)
     def __init__(self, distanceMetric="euclidean", k=5):
-        self.distanceMetric = distanceMetric.lower() # setto tutto in lowercase così non abbiamo problemi di maiuscole e minuscole
-        self.k = k
-        self.trainX = None
-        self.trainY = None
+        self.distanceMetric = distanceMetric.lower()  # Converte la metrica di distanza in minuscolo per evitare problemi di sensibilità al caso
+        self.k = k  # Numero di vicini da considerare
+        self.trainX = None  # Placeholder per le caratteristiche dei dati di addestramento
+        self.trainY = None  # Placeholder per le etichette dei dati di addestramento
 
+    # Adatta il modello KNN con i dati di addestramento
     def fit(self, trainX, trainY):
-        self.trainX = np.array(trainX)
-        self.trainY = np.array(trainY)
+        self.trainX = np.array(trainX)  # Memorizza le caratteristiche dei dati di addestramento come un array numpy
+        self.trainY = np.array(trainY)  # Memorizza le etichette dei dati di addestramento come un array numpy
 
-    def __computeDistance(self, testX): # è privato
+    # Metodo privato per calcolare le distanze tra i dati di addestramento e i dati di test
+    def __computeDistance(self, testX):
         match self.distanceMetric:
             case "euclidean":
-                return euclidean_distances(self.trainX, testX)
-            case "chebyshev": # impossibile scrivere chebyshev
-                return np.max(np.abs(self.trainX[:, None, :] - testX[None, :, :]), axis=2) # ci ho messo un po' a farlo funzionare
+                return euclidean_distances(self.trainX, testX)  # Calcola le distanze euclidee
+            case "chebyshev":
+                return np.max(np.abs(self.trainX[:, None, :] - testX[None, :, :]), axis=2)  # Calcola le distanze di Chebyshev
             case "manhattan":
-                return manhattan_distances(self.trainX, testX)
-        
-    def predict(self, testX):
-        predictions = []
+                return manhattan_distances(self.trainX, testX)  # Calcola le distanze di Manhattan
 
-        distances = self.__computeDistance(np.array(testX))
-        predictions = []
+    # Prevede le etichette per i dati di test
+    def predict(self, testX):
+        previsioni = []  # Inizializza una lista vuota per memorizzare le previsioni
+
+        distanze = self.__computeDistance(np.array(testX))  # Calcola le distanze tra i dati di addestramento e i dati di test
         
         for i in range(testX.shape[0]):
-            kIndices = np.argsort(distances[:, i])[:self.k]
-            kNearestLabels = [self.trainY[j] for j in kIndices]
-            # creo un dizionario che uso per contare le label più vicine al nuovo record
-            labelCounts = {}
-            for label in kNearestLabels:
-                if label in labelCounts:
-                    labelCounts[label] += 1
-                else:
-                    labelCounts[label] = 1
+            kIndici = np.argsort(distanze[:, i])[:self.k]  # Ottiene gli indici dei k vicini più prossimi
+            kEtichetteVicini = [self.trainY[j] for j in kIndici]  # Ottiene le etichette dei k vicini più prossimi
             
-            most_common = max(labelCounts, key=labelCounts.get)
-            predictions.append(most_common)
+            # Crea un dizionario per contare le occorrenze di ciascuna etichetta tra i k vicini più prossimi
+            conteggioEtichette = {}
+            for etichetta in kEtichetteVicini:
+                if etichetta in conteggioEtichette:
+                    conteggioEtichette[etichetta] += 1
+                else:
+                    conteggioEtichette[etichetta] = 1
+            
+            # Determina l'etichetta più comune tra i k vicini più prossimi
+            piu_comune = max(conteggioEtichette, key=conteggioEtichette.get)
+            previsioni.append(piu_comune)  # Aggiunge l'etichetta più comune alle previsioni
 
-        return np.array(predictions)
+        return np.array(previsioni)  # Restituisce le previsioni come un array numpy

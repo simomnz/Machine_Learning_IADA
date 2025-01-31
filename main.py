@@ -1,7 +1,6 @@
 import pandas as pd
 from menu import menu
 
-
 def main():
     '''
     # Potremmo anche fare come scritto nella documentazione del dataset, 
@@ -17,16 +16,20 @@ def main():
     
     # Carica i dati iniziali
     try:
+        # Tenta di leggere il file CSV contenente il dataset
         df = pd.read_csv('ObesityDataSet_raw_and_data_sinthetic.csv', encoding='UTF-8')
     except FileNotFoundError:
+        # Gestisce l'errore nel caso in cui il file CSV non venga trovato
         print("File CSV non trovato. Assicurati che 'ObesityDataSet_raw_and_data_sinthetic.csv' sia nella directory corrente.")
         return
     except Exception as e:
+        # Gestisce qualsiasi altro tipo di errore durante il caricamento del file CSV
         print(f"Errore nel caricamento del file CSV: {e}")
         return
     
-    # Avvia il menu GUI
+    # Avvia il menu GUI passando il dataframe caricato
     menu(df)
 
 if __name__ == "__main__":
+    # Esegue la funzione main se il file viene eseguito come script principale
     main()
