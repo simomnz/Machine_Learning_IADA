@@ -1,7 +1,5 @@
 import pandas as pd
 from menu import menu
-from dataAnalysis import dataAnalysis
-from classifiers import classifiers
 
 
 def main():

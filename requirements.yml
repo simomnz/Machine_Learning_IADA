@@ -1,0 +1,21 @@
+name: ML
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10.4  
+  - numpy
+  - pandas
+  - scikit-learn
+  - imbalanced-learn
+  - matplotlib
+  - seaborn
+  - tk
+  - pip
+  - pip:
+      - warnings  # Di solito incluso di default, ma specificato per sicurezza
+
+
+#per utilizzare il file requirements.yml:
+
+# '''conda env create -f requirements.yml ''' #
