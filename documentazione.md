@@ -4,7 +4,7 @@
   
 **Studenti:** Simone Sulis / Simone Manunza
 **Matricole** 00194 / 00184  
-**Anno Accademico:** 2023/2024  
+**Anno Accademico:** 2024/2025  
 
 ---
 
@@ -12,7 +12,7 @@
 
 1. [Introduzione](#1-introduzione)
    - [Librerie](#11-librerie)
-   - [L’applicazione](#12-lapplicazione)
+   - [L’applicazione](#12-lapplicazione)11
 2. [Analisi dei Dati](#2-analisi-dei-dati)
 3. [Classificatori](#3-classificatori)
 4. [Tecniche di Pre-Processing](#4-tecniche-di-pre-processing)
@@ -124,6 +124,7 @@ Abbiamo applicato diverse tecniche di bilanciamento per migliorare l’addestram
 | Selezione Feature     | 0.6386      |
 | Bilanciamento        | 0.8627      |
 | Combinata            | 0.6471      |
+
 
 ---
 
