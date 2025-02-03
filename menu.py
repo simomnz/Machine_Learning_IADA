@@ -7,8 +7,7 @@ from dataAnalysis import dataAnalysis, show_correlation_matrix
 from classifiers import classifiers
 from sklearn.linear_model import LogisticRegression
 from evaluation import evaluate_preprocessing_combinations  # Funzione in italiano
-
-warnings.filterwarnings("ignore", category=ConvergenceWarning)
+warnings.filterwarnings("ignore", category=ConvergenceWarning)  # Ignora i warning nel preprocessing
 
 def menu(dati: pd.DataFrame):
     class MLApp:
@@ -141,8 +140,7 @@ def menu(dati: pd.DataFrame):
             tk.Label(finestraClassificatore, text="Scegli il Classificatore:").pack(pady=10)
             variabileClassificatore = tk.StringVar()
             scelteClassificatore = ["svm", "tree", "ann", "knn", "voting"]
-            dropdownClassificatore = ttk.Combobox(finestraClassificatore, textvariable=variabileClassificatore,
-                                                   values=scelteClassificatore, state="readonly")
+            dropdownClassificatore = ttk.Combobox(finestraClassificatore, textvariable=variabileClassificatore, values=scelteClassificatore, state="readonly")
             dropdownClassificatore.pack(pady=5)
             dropdownClassificatore.current(0)
 
@@ -160,8 +158,7 @@ def menu(dati: pd.DataFrame):
             tk.Label(finestraClassificatore, text="Metrica di Distanza:").pack(pady=5)
             variabileMetrica = tk.StringVar()
             scelteMetrica = ["manhattan", "euclidean", "chebyshev"]
-            dropdownMetrica = ttk.Combobox(finestraClassificatore, textvariable=variabileMetrica,
-                                           values=scelteMetrica, state="readonly")
+            dropdownMetrica = ttk.Combobox(finestraClassificatore, textvariable=variabileMetrica, values=scelteMetrica, state="readonly")
             dropdownMetrica.pack(pady=5)
             dropdownMetrica.current(0)
 
@@ -214,8 +211,7 @@ def menu(dati: pd.DataFrame):
             finestraPreprocessing.title("Confronto Tecniche Preprocessing")
             finestraPreprocessing.geometry("500x400")
 
-            tk.Label(finestraPreprocessing, text="Risultati 5-fold Cross-Validation (Accuracy)",
-                     font=("Helvetica", 14)).pack(pady=10)
+            tk.Label(finestraPreprocessing, text="Risultati 5-fold Cross-Validation (Accuracy)", font=("Helvetica", 14)).pack(pady=10)
 
             tabellaRisultati = ttk.Treeview(finestraPreprocessing)
             tabellaRisultati["show"] = "headings"
