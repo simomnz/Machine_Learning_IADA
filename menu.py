@@ -6,219 +6,237 @@ from sklearn.exceptions import ConvergenceWarning
 from dataAnalysis import dataAnalysis, show_correlation_matrix
 from classifiers import classifiers
 from sklearn.linear_model import LogisticRegression
-from evaluation import evaluate_preprocessing_combinations
+from evaluation import evaluate_preprocessing_combinations  # Funzione in italiano
 
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
-
-
-#   __  __ ______ _   _ _    _ 
-#  |  \/  |  ____| \ | | |  | |
-#  | \  / | |__  |  \| | |  | |
-#  | |\/| |  __| | . ` | |  | |
-#  | |  | | |____| |\  | |__| |
-#  |_|  |_|______|_| \_|\____/ 
-                             
-                           
-
-def menu(df: pd.DataFrame):
+def menu(dati: pd.DataFrame):
     class MLApp:
-        def __init__(self, master, df):
+        def __init__(self, master, dati):
+            # Imposta la finestra principale
             self.master = master
             self.master.title("Menu di Machine Learning")
             self.master.geometry("800x600")
-            self.df = df
+            self.dati = dati
 
             # Pulsante per l'analisi dei dati
-            self.analysis_button = tk.Button(master, text="Analisi Dati", command=self.perform_data_analysis, width=25, height=2)
-            self.analysis_button.pack(pady=10)
+            self.analisiButton = tk.Button(master, text="Analisi Dati", command=self.eseguiAnalisiDati, width=25, height=2)
+            self.analisiButton.pack(pady=10)
 
             # Pulsante per addestrare un classificatore
-            self.classifier_button = tk.Button(master, text="Addestra Classificatore", command=self.open_classifier_window, width=25, height=2)
-            self.classifier_button.pack(pady=10)
+            self.classificatoreButton = tk.Button(master, text="Addestra Classificatore", command=self.apriFinestraClassificatore, width=25, height=2)
+            self.classificatoreButton.pack(pady=10)
 
-            # Pulsante per tecniche di preprocessing
-            self.preprocessing_button = tk.Button(master, text="Tecniche Preprocessing", command=self.open_preprocessing_window, width=25, height=2)
-            self.preprocessing_button.pack(pady=10)
+            # Pulsante per confrontare tecniche di preprocessing
+            self.preprocessingButton = tk.Button(master, text="Tecniche Preprocessing", command=self.apriFinestraPreprocessing, width=25, height=2)
+            self.preprocessingButton.pack(pady=10)
 
             # Pulsante per uscire dall'applicazione
-            self.exit_button = tk.Button(master, text="Esci", command=master.quit, width=25, height=2)
-            self.exit_button.pack(pady=10)
+            self.uscitaButton = tk.Button(master, text="Esci", command=master.quit, width=25, height=2)
+            self.uscitaButton.pack(pady=10)
 
             # Area di testo per loggare i messaggi
-            self.log_text = tk.Text(master, height=10, width=80)
-            self.log_text.pack(pady=10)
+            self.logText = tk.Text(master, height=10, width=80)
+            self.logText.pack(pady=10)
 
-        def log(self, message):
-            self.log_text.insert(tk.END, message + "\n")
-            self.log_text.see(tk.END)
+        def log(self, messaggio):
+            # Scrive un messaggio nell'area di log
+            self.logText.insert(tk.END, messaggio + "\n")
+            self.logText.see(tk.END)
 
-        def perform_data_analysis(self):
-            if self.df is None:
+        def eseguiAnalisiDati(self):
+            # Se non ci sono dati, mostra un messaggio e termina
+            if self.dati is None:
                 messagebox.showwarning("Avviso", "Carica prima i dati.")
-                self.log("Tentativo di analisi senza dati caricati.")
+                self.log("Nessun dato caricato.")
                 return
 
-            try:
-                analysis_window = tk.Toplevel(self.master)
-                analysis_window.title("Analisi dei Dati")
-                analysis_window.geometry("1000x800")
+            # Crea una nuova finestra per l'analisi dei dati
+            finestraAnalisi = tk.Toplevel(self.master)
+            finestraAnalisi.title("Analisi dei Dati")
+            finestraAnalisi.geometry("1000x800")
 
-                stats_frame = tk.Frame(analysis_window)
-                stats_frame.pack(pady=10, fill=tk.BOTH, expand=True)
+            # Mostra le statistiche descrittive in una tabella
+            frameStatistiche = tk.Frame(finestraAnalisi)
+            frameStatistiche.pack(pady=10, fill=tk.BOTH, expand=True)
+            tk.Label(frameStatistiche, text="Statistiche Descrittive per Colonna", font=("Helvetica", 14)).pack()
+            tabellaStatistiche = ttk.Treeview(frameStatistiche)
+            tabellaStatistiche["show"] = "headings"
+            tabellaStatistiche.pack(fill=tk.BOTH, expand=True)
+            tabellaStatistiche["columns"] = ("Colonna", "Media", "Mediana", "Deviazione Standard", "Minimo", "Massimo")
+            # Imposta le intestazioni e le dimensioni delle colonne
+            tabellaStatistiche.heading("Colonna", text="Colonna")
+            tabellaStatistiche.heading("Media", text="Media")
+            tabellaStatistiche.heading("Mediana", text="Mediana")
+            tabellaStatistiche.heading("Deviazione Standard", text="Deviazione Standard")
+            tabellaStatistiche.heading("Minimo", text="Minimo")
+            tabellaStatistiche.heading("Massimo", text="Massimo")
+            tabellaStatistiche.column("Colonna", width=150)
+            tabellaStatistiche.column("Media", width=100)
+            tabellaStatistiche.column("Mediana", width=100)
+            tabellaStatistiche.column("Deviazione Standard", width=150)
+            tabellaStatistiche.column("Minimo", width=100)
+            tabellaStatistiche.column("Massimo", width=100)
 
-                tk.Label(stats_frame, text="Statistiche Descrittive per Colonna", font=("Helvetica", 14)).pack()
+            colonneNumeriche = self.dati.select_dtypes(include=['float64', 'int64']).columns
+            stats = self.dati[colonneNumeriche].describe().loc[['mean', '50%', 'std', 'min', 'max']]\
+                      .rename(index={'50%': 'median'})
+            for col in colonneNumeriche:
+                tabellaStatistiche.insert("", tk.END, values=(
+                    col,
+                    f"{stats.at['mean', col]:.2f}",
+                    f"{stats.at['median', col]:.2f}",
+                    f"{stats.at['std', col]:.2f}",
+                    f"{stats.at['min', col]:.2f}",
+                    f"{stats.at['max', col]:.2f}"
+                ))
 
-                stats_tree = ttk.Treeview(stats_frame)
-                stats_tree["show"] = "headings"
-                stats_tree.pack(fill=tk.BOTH, expand=True)
+            # Mostra il numero di outliers per alcune colonne
+            frameOutliers = tk.Frame(finestraAnalisi)
+            frameOutliers.pack(pady=10, fill=tk.BOTH, expand=True)
+            tk.Label(frameOutliers, text="Outliers per Colonna", font=("Helvetica", 14)).pack()
+            tabellaOutliers = ttk.Treeview(frameOutliers)
+            tabellaOutliers["show"] = "headings"
+            tabellaOutliers.pack(fill=tk.BOTH, expand=True)
+            tabellaOutliers["columns"] = ("Colonna", "Numero di Outliers")
+            tabellaOutliers.heading("Colonna", text="Colonna")
+            tabellaOutliers.heading("Numero di Outliers", text="Numero di Outliers")
+            tabellaOutliers.column("Colonna", width=150)
+            tabellaOutliers.column("Numero di Outliers", width=200)
+            outliers = self.calcolaOutliers(self.dati)
+            for col, num in outliers.items():
+                tabellaOutliers.insert("", tk.END, values=(col, num))
 
-                stats_tree["columns"] = ("Column", "Mean", "Median", "Std", "Min", "Max")
-                stats_tree.heading("Column", text="Colonna")
-                stats_tree.heading("Mean", text="Media")
-                stats_tree.heading("Median", text="Mediana")
-                stats_tree.heading("Std", text="Deviazione Standard")
-                stats_tree.heading("Min", text="Minimo")
-                stats_tree.heading("Max", text="Massimo")
+            # Pulsante per mostrare la matrice di correlazione
+            pulsanteCorrelazione = tk.Button(finestraAnalisi, text="Mostra Matrice di Correlazione",  command=lambda: show_correlation_matrix(self.dati))
+            pulsanteCorrelazione.pack(pady=10)
 
-                stats_tree.column("Column", width=150)
-                stats_tree.column("Mean", width=100)
-                stats_tree.column("Median", width=100)
-                stats_tree.column("Std", width=150)
-                stats_tree.column("Min", width=100)
-                stats_tree.column("Max", width=100)
 
-                # Seleziona solo le colonne numeriche
-                numeric_cols = self.df.select_dtypes(include=['float64', 'int64']).columns
-                stats = self.df[numeric_cols].describe().loc[['mean', '50%', 'std', 'min', 'max']].rename(index={'50%': 'median'})
+            self.log("Analisi dei dati completata.")
 
-                for col in numeric_cols:
-                    stats_tree.insert("", tk.END, values=(
-                        col,
-                        f"{stats.at['mean', col]:.2f}",
-                        f"{stats.at['median', col]:.2f}",
-                        f"{stats.at['std', col]:.2f}",
-                        f"{stats.at['min', col]:.2f}",
-                        f"{stats.at['max', col]:.2f}"
-                    ))
-
-                outliers_frame = tk.Frame(analysis_window)
-                outliers_frame.pack(pady=10, fill=tk.BOTH, expand=True)
-
-                tk.Label(outliers_frame, text="Outliers per Colonna", font=("Helvetica", 14)).pack()
-
-                outliers_tree = ttk.Treeview(outliers_frame)
-                outliers_tree["show"] = "headings"
-                outliers_tree.pack(fill=tk.BOTH, expand=True)
-
-                outliers_tree["columns"] = ("Column", "Numero di Outliers")
-                outliers_tree.heading("Column", text="Colonna")
-                outliers_tree.heading("Numero di Outliers", text="Numero di Outliers")
-                outliers_tree.column("Column", width=150)
-                outliers_tree.column("Numero di Outliers", width=200)
-
-                # Calcola il numero di outliers per ogni colonna numerica
-                outliers = self.compute_outliers(self.df)
-                for col, count in outliers.items():
-                    outliers_tree.insert("", tk.END, values=(col, count))
-
-                # Pulsante per mostrare la matrice di correlazione
-                corr_button = tk.Button(analysis_window, text="Mostra Matrice di Correlazione", command=lambda: show_correlation_matrix(self.df))
-                corr_button.pack(pady=10)
-
-                self.log("Analisi dei dati completata.")
-            except Exception as e:
-                messagebox.showerror("Errore", f"Errore nell'analisi dei dati: {e}")
-                self.log(f"Errore nell'analisi dei dati: {e}")
-
-        def compute_outliers(self, df: pd.DataFrame) -> dict:
-            variabiliNumeriche = ["Age", "Height", "Weight", "FCVC", "NCP", "CH2O", "FAF", "TUE"]
+        def calcolaOutliers(self, df: pd.DataFrame) -> dict:
+            # Lista delle colonne numeriche da analizzare per gli outliers
+            colonneNumeriche = ["Age", "Height", "Weight", "FCVC", "NCP", "CH2O", "FAF", "TUE"]
             outliers = {}
-            for col in variabiliNumeriche:
+            for col in colonneNumeriche:
                 if col in df.columns:
-                    Q1 = df[col].quantile(0.25)
-                    Q3 = df[col].quantile(0.75)
-                    IQR = Q3 - Q1
-                    count = ((df[col] < (Q1 - 1.5 * IQR)) | (df[col] > (Q3 + 1.5 * IQR))).sum()
-                    outliers[col] = count
+                    q1 = df[col].quantile(0.25)
+                    q3 = df[col].quantile(0.75)
+                    iqr = q3 - q1
+                    num = ((df[col] < (q1 - 1.5 * iqr)) | (df[col] > (q3 + 1.5 * iqr))).sum()
+                    outliers[col] = num
             return outliers
 
-        def open_classifier_window(self):
-            if self.df is None:
+        def apriFinestraClassificatore(self):
+            # Se i dati non sono caricati, mostra un messaggio
+            if self.dati is None:
                 messagebox.showwarning("Avviso", "Carica prima i dati.")
-                self.log("Tentativo di addestramento senza dati caricati.")
+                self.log("Nessun dato caricato per l'addestramento.")
                 return
 
-            classifier_window = tk.Toplevel(self.master)
-            classifier_window.title("Addestra Classificatore")
-            classifier_window.geometry("400x300")
+            finestraClassificatore = tk.Toplevel(self.master)
+            finestraClassificatore.title("Addestra Classificatore")
+            finestraClassificatore.geometry("400x400")
 
-            tk.Label(classifier_window, text="Scegli il Classificatore:").pack(pady=10)
+            tk.Label(finestraClassificatore, text="Scegli il Classificatore:").pack(pady=10)
+            variabileClassificatore = tk.StringVar()
+            scelteClassificatore = ["svm", "tree", "ann", "knn", "voting"]
+            dropdownClassificatore = ttk.Combobox(finestraClassificatore, textvariable=variabileClassificatore,
+                                                   values=scelteClassificatore, state="readonly")
+            dropdownClassificatore.pack(pady=5)
+            dropdownClassificatore.current(0)
 
-            classifier_var = tk.StringVar()
-            classifier_choices = ["svm", "tree", "ann", "knn", "voting"]
-            classifier_dropdown = ttk.Combobox(classifier_window, textvariable=classifier_var, values=classifier_choices, state="readonly")
-            classifier_dropdown.pack(pady=5)
-            classifier_dropdown.current(0)
+            # CheckBox per "Usa Tuning"
+            varTuning = tk.BooleanVar(value=True)
+            checkTuning = tk.Checkbutton(finestraClassificatore, text="Usa Tuning", variable=varTuning)
+            checkTuning.pack(pady=5)
 
-            train_button = tk.Button(classifier_window, text="Addestra", command=lambda: self.train_classifier(classifier_var.get(), classifier_window))
-            train_button.pack(pady=20)
+            # CheckBox per "Usa Pipeline"
+            varPipeline = tk.BooleanVar(value=False)
+            checkPipeline = tk.Checkbutton(finestraClassificatore, text="Usa Pipeline", variable=varPipeline)
+            checkPipeline.pack(pady=5)
 
-        def train_classifier(self, classifier_type, window):
-            try:
-                accuracy = classifiers(self.df, classifier_type)
-                messagebox.showinfo("Risultato", f"Accuratezza = {accuracy:.2f}")
-                self.log(f"Addestrato {classifier_type} con accuratezza = {accuracy:.2f}")
-                window.destroy()
-            except Exception as e:
-                messagebox.showerror("Errore", f"Errore nell'addestramento del classificatore: {e}")
-                self.log(f"Errore nell'addestramento del classificatore: {e}")
+            # Opzioni aggiuntive per KNN/Voting: scelta della metrica di distanza e valore di k
+            tk.Label(finestraClassificatore, text="Metrica di Distanza:").pack(pady=5)
+            variabileMetrica = tk.StringVar()
+            scelteMetrica = ["manhattan", "euclidean", "chebyshev"]
+            dropdownMetrica = ttk.Combobox(finestraClassificatore, textvariable=variabileMetrica,
+                                           values=scelteMetrica, state="readonly")
+            dropdownMetrica.pack(pady=5)
+            dropdownMetrica.current(0)
 
-        def open_preprocessing_window(self):
-            if self.df is None:
+            tk.Label(finestraClassificatore, text="Valore di k:").pack(pady=5)
+            variabileK = tk.StringVar(value="0")
+            entryK = tk.Entry(finestraClassificatore, textvariable=variabileK)
+            entryK.pack(pady=5)
+
+            pulsanteAddestra = tk.Button(finestraClassificatore, text="Addestra",
+                command=lambda: self.addestraClassificatore(
+                    variabileClassificatore.get(),
+                    varTuning.get(),
+                    varPipeline.get(),
+                    variabileMetrica.get(),
+                    variabileK.get(),
+                    finestraClassificatore
+                ))
+            pulsanteAddestra.pack(pady=20)
+
+        def addestraClassificatore(self, tipoClassificatore, usaTuning, usaPipeline, metrica, kVal, finestra):
+            # Converte k in intero
+            k_int = int(kVal)
+            # Chiama la funzione classifiers passando anche i parametri 'distanza' e 'kValue'
+            accuracy = classifiers(self.dati, tipoClassificatore, tuning=usaTuning, usaPipeline=usaPipeline,
+                                   distanza=metrica, kValue=k_int)
+            # Se il classificatore è KNN o Voting, includi nel messaggio il valore di k e la metrica
+            if tipoClassificatore in ["knn", "voting"]:
+                messaggio = (f"Addestrato {tipoClassificatore} con accuratezza = {accuracy:.2f} " f" \n(metrica = {metrica})")
+            else:
+                messaggio = f"Addestrato {tipoClassificatore} con accuratezza = {accuracy:.2f}"
+            messagebox.showinfo("Risultato", messaggio)
+            self.log(messaggio)
+            finestra.destroy()
+
+        def apriFinestraPreprocessing(self):
+            if self.dati is None:
                 messagebox.showwarning("Avviso", "Carica prima i dati.")
-                self.log("Tentativo di confronto pre-processing senza dati caricati.")
+                self.log("Nessun dato caricato per il preprocessing.")
                 return
 
-            try:
-                X = self.df.iloc[:, :-1]
-                X = pd.get_dummies(X)
-                y = self.df.iloc[:, -1]
+            # Presume che l'ultima colonna sia la variabile target
+            X = self.dati.iloc[:, :-1]
+            X = pd.get_dummies(X)
+            y = self.dati.iloc[:, -1]
 
-                clf = LogisticRegression(max_iter=1000, random_state=42)
+            clf = LogisticRegression(max_iter=1000, random_state=42)
+            risultati = evaluate_preprocessing_combinations(X, y, clf)
 
-                results = evaluate_preprocessing_combinations(X, y, clf)
+            finestraPreprocessing = tk.Toplevel(self.master)
+            finestraPreprocessing.title("Confronto Tecniche Preprocessing")
+            finestraPreprocessing.geometry("500x400")
 
-                prep_window = tk.Toplevel(self.master)
-                prep_window.title("Confronto Tecniche Preprocessing")
-                prep_window.geometry("500x400")
+            tk.Label(finestraPreprocessing, text="Risultati 5-fold Cross-Validation (Accuracy)",
+                     font=("Helvetica", 14)).pack(pady=10)
 
-                tk.Label(prep_window, text="Risultati 5-fold Cross-Validation (Accuracy)", font=("Helvetica", 14)).pack(pady=10)
+            tabellaRisultati = ttk.Treeview(finestraPreprocessing)
+            tabellaRisultati["show"] = "headings"
+            tabellaRisultati.pack(fill=tk.BOTH, expand=True)
+            tabellaRisultati["columns"] = ("Tecnica", "Accuracy")
+            tabellaRisultati.heading("Tecnica", text="Tecnica")
+            tabellaRisultati.heading("Accuracy", text="Accuracy")
+            tabellaRisultati.column("Tecnica", width=200)
+            tabellaRisultati.column("Accuracy", width=100)
 
-                result_tree = ttk.Treeview(prep_window)
-                result_tree["show"] = "headings"
-                result_tree.pack(fill=tk.BOTH, expand=True)
+            for tecnica, acc in risultati.items():
+                tabellaRisultati.insert("", tk.END, values=(tecnica, f"{acc:.4f}"))
 
-                result_tree["columns"] = ("Tecnica", "Accuracy")
-                result_tree.heading("Tecnica", text="Tecnica")
-                result_tree.heading("Accuracy", text="Accuracy")
-                result_tree.column("Tecnica", width=200)
-                result_tree.column("Accuracy", width=100)
+            miglioreTecnica = max(risultati, key=risultati.get)
+            miglioreAccuracy = risultati[miglioreTecnica]
+            etichettaMigliore = tk.Label(finestraPreprocessing, text=f"Miglior tecnica: {miglioreTecnica} (Accuracy: {miglioreAccuracy:.4f})", font=("Helvetica", 12, "bold"))
+            etichettaMigliore.pack(pady=10)
 
-                for tech, acc in results.items():
-                    result_tree.insert("", tk.END, values=(tech, f"{acc:.4f}"))
-
-                best_tech = max(results, key=results.get)
-                best_acc = results[best_tech]
-
-                best_label = tk.Label(prep_window, text=f"Miglior tecnica: {best_tech} (Accuracy: {best_acc:.4f})", font=("Helvetica", 12, "bold"))
-                best_label.pack(pady=10)
-
-                self.log("Confronto delle tecniche di pre-processing completato.")
-            except Exception as e:
-                messagebox.showerror("Errore", f"Errore nel confronto pre-processing: {e}")
-                self.log(f"Errore nel confronto pre-processing: {e}")
+            self.log("Confronto delle tecniche di pre-processing completato.")
 
     root = tk.Tk()
-    app = MLApp(root, df)
+    MLApp(root, dati)
     root.mainloop()
+

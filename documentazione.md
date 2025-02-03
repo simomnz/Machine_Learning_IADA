@@ -1,143 +1,56 @@
-## Corso di Laurea Triennale in Informatica Applicata e Data Analytics
-
 # Relazione Progetto Machine Learning
-  
-**Studenti:** Simone Sulis / Simone Manunza
-**Matricole** 00194 / 00184  
-**Anno Accademico:** 2024/2025  
+**Corso di Laurea Triennale in Informatica Applicata e Data Analytics**  
+**Studenti:** Simone Sulis e Simone Manunza  
+**Matricole:** 00194 / 00184  
+**Anno Accademico:** 2024/2025
 
 ---
 
-## Contenuti
-
-1. [Introduzione](#1-introduzione)
-   - [Librerie](#11-librerie)
-   - [L’applicazione](#12-lapplicazione)11
-2. [Analisi dei Dati](#2-analisi-dei-dati)
-3. [Classificatori](#3-classificatori)
-4. [Tecniche di Pre-Processing](#4-tecniche-di-pre-processing)
-   - [Encoding dei Dati](#41-encoding-dei-dati)
-   - [Bilanciamento dei Dati](#42-bilanciamento-dei-dati)
-5. [Conclusioni](#5-conclusioni)
-6. [Sviluppi Futuri](#6-sviluppi-futuri)
+## Introduzione
+Il presente progetto si propone di analizzare il dataset `ObesityDataSet_raw_and_data_sinthetic.csv` al fine di classificare il livello di obesità degli individui sulla base di variabili fisiche e abitudini alimentari.  
+L'obiettivo principale è confrontare diversi modelli di Machine Learning e individuare la combinazione ottimale di tecniche di preprocessing e parametri (tuning) per massimizzare l'accuratezza del sistema predittivo.
 
 ---
 
-## 1. Introduzione
-
-In questa relazione analizziamo il dataset **ObesityDataSet_raw_and_data_sinthetic.csv** per la classificazione del livello di obesità di un individuo in base a parametri fisici e abitudini alimentari.
-
-L'obiettivo del progetto è confrontare diversi modelli di machine learning per ottenere la miglior accuratezza possibile e determinare la combinazione ottimale di tecniche di pre-processing e classificazione.
-
-### 1.1 Librerie
-
-Abbiamo utilizzato **Python 3.10.4** e le seguenti librerie:
-
-| Librerie          |
-|--------------------
-| NumPy             |
-| Pandas            |
-| Matplotlib        |
-| Scikit-learn      |
-| Tkinter           |
-| Seaborn           |
-| Imbalanced-learn  |
-| SciPy             |
-
-
-### 1.2 L’applicazione
-
-Abbiamo sviluppato una GUI con **Tkinter** che permette di:
-- **Analizzare i dati**: statistiche descrittive, outlier, matrice di correlazione.
-- **Addestrare un modello di classificazione** a scelta.
-- **Visualizzare le performance** delle tecniche di preprocessing e scegliere la migliore combinazione.
+## Analisi dei Dati
+Prima di procedere con l'addestramento dei modelli, è stata condotta un'analisi esplorativa del dataset:
+- **Verifica di dati mancanti e duplicati:** Controllo e, se necessario, rimozione di eventuali dati mancanti e duplicati.
+- **Rilevamento di outlier:** Applicazione del metodo dell'intervallo interquartile (IQR) per determinare limiti e identificare valori anomali nelle variabili numeriche.
+- **Esplorazione delle distribuzioni:** Analisi delle distribuzioni tramite boxplot e matrice di correlazione per le variabili numeriche, e conteggio delle occorrenze per le variabili categoriali.
 
 ---
 
-## 2. Analisi dei Dati
-
-Il dataset contiene informazioni su diverse variabili. **Principali risultati dell'analisi:**
-
-- **Valori mancanti**: nessun valore mancante.
-- **Duplicati**: presenti alcuni duplicati, rimossi in pre-processing.
-- **Outlier rilevati**:
-  - **Age**: 168
-  - **Height**: 1
-  - **NCP**: 579
-  - **Weight**: 1
-- **Correlazione**: peso e altezza hanno una correlazione elevata.
+## Preprocessing dei Dati
+Il processo di preprocessing prevede:
+- **Normalizzazione:** Le variabili numeriche (`Age`, `Height`, `Weight`, `FCVC`, `NCP`, `CH2O`, `FAF`, `TUE`) vengono normalizzate con il `MinMaxScaler`.
+- **Codifica:**
+  - La variabile target `NObeyesdad` viene codificata tramite `LabelEncoder`.
+  - Le variabili categoriali (es. `Gender`, `family_history_with_overweight`, `FAVC`, `CAEC`, `SMOKE`, `SCC`, `CALC`, `MTRANS`) sono trasformate in dummy variables utilizzando `pd.get_dummies(..., drop_first=True)`.
+- **Suddivisione del Dataset:**  
+  Il dataset viene diviso in training e test (80%-20%) tramite `train_test_split` con `random_state=0`.
 
 ---
 
+## Classificatori e Tuning Manuale
+La funzione principale `classifiers` gestisce:
+- Il preprocessing iniziale dei dati.
+- La selezione del classificatore in base al parametro `tipoClassificatore`.  
+  I modelli implementati includono:
+  - **SVM:** Utilizza un kernel lineare.
+  - **Albero Decisionale:** Implementato con `DecisionTreeClassifier` e tuning del parametro `max_depth`.
+  - **ANN:** Implementato con `MLPClassifier` a due layer nascosti.
+  - **KNN Custom:** Una classe custom (`knn`) che supporta diverse metriche di distanza (es. `manhattan`, `euclidean`, `chebyshev`).  
+    La classe è stata adattata ereditando da `BaseEstimator` e `ClassifierMixin` per garantire la compatibilità con GridSearchCV.
+  - **Voting Classifier Custom:** Aggrega le predizioni di un Decision Tree, di un KNN (scikit-learn) e di un GaussianNB, combinando le predizioni tramite la moda.
+- **Tuning:**  
+  Pur essendo effettuato manualmente (es. scelta di `max_depth=10` per l'albero e `distanceMetric="manhattan"` per il KNN), è implementata la possibilità di utilizzare GridSearchCV per ottimizzare gli iperparametri.
+- **Pipeline Opzionale:**  
+  È possibile integrare ulteriori step di preprocessing (StandardScaler, PCA, RandomOverSampler) tramite una pipeline (usando `ImbPipeline`) per valutare l'impatto combinato di diverse tecniche.
 
-## 3. Classificatori
-
-Abbiamo testato diversi modelli:
-
-| Modello | Accuratezza |
-|---------|------------|
-| **K-Nearest Neighbors (KNN) Custom** | 0.86 |
-| **Albero Decisionale** | 0.92 |
-| **Artificial Neural Network (ANN)** | 0.96 |
-| **Support Vector Machine (SVM)** | 0.86 |
-| **Voting Classifier (Custom)** | 0.83 |
-
-### 3.2 Albero Decisionale
-
-Il **Decision Tree** è un modello di classificazione basato su regole gerarchiche, dove ogni nodo rappresenta una decisione basata su una feature del dataset. Abbiamo utilizzato un albero con profondità massima di 10 per evitare l’overfitting, ottenendo un’accuratezza del **92%**.
-
-### 3.3 Artificial Neural Network (ANN)
-
-La **rete neurale artificiale** utilizzata è composta da due layer nascosti con 10 neuroni ciascuno, attivati con **ReLU** e addestrati con **backpropagation**. L’uso di **Dropout** ha migliorato la generalizzazione, permettendo di raggiungere un’accuratezza del **96%**.
-
-### 3.4 Support Vector Machine (SVM)
-
-L’**SVM** è stato implementato con un **kernel lineare**, risultando particolarmente efficace per separare i dati in modo robusto. Ha ottenuto un’accuratezza dell’**86%**, confermando la sua efficacia su dataset con variabili ben distribuite.
-
-### 3.5 Voting Classifier
-
-Abbiamo implementato un **Voting Classifier** che combina i risultati di **Decision Tree, KNN e Naive Bayes**. Questo metodo sfrutta il voto di maggioranza per migliorare la stabilità della predizione. L’**hard voting** è stato utilizzato per assegnare la classe con la maggior frequenza tra i modelli. 
-
-Nonostante il **Voting Classifier** abbia ottenuto un’accuratezza leggermente inferiore (**83%**), il suo utilizzo potrebbe garantire una maggiore robustezza rispetto a singoli modelli, specialmente in contesti con elevata varianza nei dati.
-
----
-## 4. Tecniche di Pre-Processing
-
-### 4.1 Encoding dei Dati
-
-Per poter utilizzare i modelli di machine learning, abbiamo eseguito la codifica delle variabili categoriali:
-- **Label Encoding** per la variabile target (**NObeyesdad**), convertendola in valori numerici.
-- **One-Hot Encoding** per le variabili categoriali (es. **Gender, family_history_with_overweight, FAVC, CAEC, SMOKE, SCC, CALC, MTRANS**), per evitare che un ordine implicito influisca sul modello.
-
-### 4.2 Bilanciamento dei Dati
-
-Abbiamo applicato diverse tecniche di bilanciamento per migliorare l’addestramento:
-- **Random Oversampling**: duplicazione delle istanze della classe minoritaria.
-- **Random Undersampling**: rimozione casuale di alcune istanze della classe maggioritaria.
-- **SMOTE** (Synthetic Minority Over-sampling Technique): generazione sintetica di nuovi dati appartenenti alla classe minoritaria.
-- **Tecnica combinata (Oversampling + Undersampling)** per ottenere il miglior equilibrio possibile tra le classi.
-
-| Tecnica                | Accuratezza |
-|------------------------|-------------|
-| Baseline              | 0.7092      |
-| Standardizzazione     | 0.8622      |
-| Selezione Feature     | 0.6386      |
-| Bilanciamento        | 0.8627      |
-| Combinata            | 0.6471      |
-
-
----
-
-## 5. Conclusioni
-
-I risultati ottenuti dimostrano che la **rete neurale artificiale (ANN)** ha raggiunto la miglior performance con un'accuratezza del **96%**, seguita dall'**Albero Decisionale** con **92%**.
-
-Il **preprocessing dei dati** ha giocato un ruolo cruciale nel migliorare le performance. L’uso della **standardizzazione e PCA**, insieme a tecniche di bilanciamento, ha permesso di ottimizzare la classificazione.
-
----
-
-## 6. Possibili Sviluppi Futuri
-
-- **Miglioramento del Voting Classifier**, sostituendo l'attuale metodo di **Hard Voting** con **Soft Voting**, il quale considera le probabilità di classe per ogni modello invece di basarsi solo sulla maggioranza assoluta delle predizioni.
-
-
+**Esempio di funzione `classifiers`:**
+```python
+def classifiers(dati: pd.DataFrame, tipoClassificatore: str, tuning: bool = True, usaPipeline: bool = False):
+    # Preprocessing dei dati...
+    # Selezione del classificatore in base a tipoClassificatore (svm, tree, ann, knn, voting)
+    # Tuning tramite GridSearchCV (opzionale)
+    return accuratezza

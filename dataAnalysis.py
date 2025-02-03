@@ -7,10 +7,13 @@ def dataAnalysis(df: pd.DataFrame):
     
     # Analizza le colonne numeriche (int64 e float64)
     for col in df.select_dtypes(include=['int64', 'float64']).columns:
-        Q1, Q3 = df[col].quantile([0.25, 0.75])  # Calcola il primo e terzo quartile
-        IQR = Q3 - Q1  # Calcola l'intervallo interquartile
-        lower_bound, upper_bound = Q1 - 1.5 * IQR, Q3 + 1.5 * IQR  # Calcola i limiti per gli outlier
+
+        Q1, Q3 = df[col].quantile([0.25, 0.75])                         # Calcola il primo e terzo quartile
+        IQR = Q3 - Q1                                                   # Calcola l'intervallo interquartile
+        lower_bound, upper_bound = Q1 - 1.5 * IQR, Q3 + 1.5 * IQR       # Calcola i limiti per gli outlier
+        
         outliers = ((df[col] < lower_bound) | (df[col] > upper_bound)).sum()  # Conta gli outlier
+
         buffer.extend([
             f"{col}:",
             f"{outliers}",  # Numero di outlier
@@ -35,3 +38,5 @@ def plot_outliers(df: pd.DataFrame, column: str):
     plt.figure(figsize=(10, 6))
     sns.boxplot(x=df[column])  # Mostra un boxplot per la colonna specificata
     plt.show()
+
+
