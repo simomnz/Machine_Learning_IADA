@@ -11,14 +11,14 @@ def dataAnalysis(df: pd.DataFrame):
         Q1, Q3 = df[col].quantile([0.25, 0.75])                         # Calcola il primo e terzo quartile
         IQR = Q3 - Q1                                                   # Calcola l'intervallo interquartile
         lower_bound, upper_bound = Q1 - 1.5 * IQR, Q3 + 1.5 * IQR       # Calcola i limiti per gli outlier
-        
+
         outliers = ((df[col] < lower_bound) | (df[col] > upper_bound)).sum()  # Conta gli outlier
 
         buffer.extend([
             f"{col}:",
-            f"{outliers}",  # Numero di outlier
-            f"{df[col].min():.2f} ({lower_bound:.2f})",  # Valore minimo e limite inferiore
-            f"{df[col].max():.2f} ({upper_bound:.2f})"  # Valore massimo e limite superiore
+            f"{outliers}",                                  # Numero di outlier
+            f"{df[col].min():.2f} ({lower_bound:.2f})",     # Valore minimo e limite inferiore
+            f"{df[col].max():.2f} ({upper_bound:.2f})"      # Valore massimo e limite superiore
         ])
     
     # Analizza le colonne di tipo oggetto (stringhe)

@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.model_selection import cross_val_score
 from imblearn.over_sampling import RandomOverSampler
-from imblearn.pipeline import Pipeline as ImbPipeline
+from imblearn.pipeline import Pipeline
 
 def evaluate_preprocessing_combinations(X, y, classifier):
     
@@ -21,12 +21,12 @@ def evaluate_preprocessing_combinations(X, y, classifier):
             ("pca", PCA(n_components=0.95)),  # Selezione delle feature con PCA
             ("clf", classifier)
         ]),
-        "bilanciamento": ImbPipeline([
+        "bilanciamento": Pipeline([
             ("scaler", StandardScaler()),  # Standardizzazione dei dati
             ("oversampler", RandomOverSampler(random_state=42)),  # Bilanciamento delle classi
             ("clf", classifier)
         ]),
-        "combinata": ImbPipeline([
+        "combinata": Pipeline([
             ("scaler", StandardScaler()),  # Standardizzazione dei dati
             ("pca", PCA(n_components=0.95)),  # Selezione delle feature con PCA
             ("oversampler", RandomOverSampler(random_state=42)),  # Bilanciamento delle classi
