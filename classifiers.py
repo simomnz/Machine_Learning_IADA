@@ -11,7 +11,7 @@ from imblearn.pipeline import Pipeline as ImbPipeline
 from knn import knn
 from votingClassifier import VotingClassifierCustom
 
-def classifiers(dati: pd.DataFrame,tipoClassificatore: str,tuning: bool = True,usaPipeline: bool = False,distanza: str = None,kValue: int = None):
+def classifiers(dati: pd.DataFrame,tipoClconda env create -f requirements.ymlassificatore: str,tuning: bool = True,usaPipeline: bool = False,distanza: str = None,kValue: int = None):
   
     # Crea una copia dei dati per non modificare l'originale
     datiCopia = dati.copy()

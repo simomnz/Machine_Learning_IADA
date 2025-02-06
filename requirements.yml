@@ -12,8 +12,6 @@ dependencies:
   - seaborn
   - tk
   - pip
-  - pip:
-      - warnings  # Di solito incluso di default, ma specificato per sicurezza
 
 
 #per utilizzare il file requirements.yml:
