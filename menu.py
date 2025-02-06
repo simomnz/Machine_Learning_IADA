@@ -3,7 +3,7 @@ from tkinter import messagebox, ttk
 import pandas as pd
 import warnings
 from sklearn.exceptions import ConvergenceWarning
-from dataAnalysis import dataAnalysis, show_correlation_matrix
+from dataAnalysis import show_correlation_matrix
 from classifiers import classifiers
 from sklearn.linear_model import LogisticRegression
 from evaluation import evaluate_preprocessing_combinations  # Funzione in italiano

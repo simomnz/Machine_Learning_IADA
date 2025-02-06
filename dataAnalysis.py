@@ -33,10 +33,3 @@ def show_correlation_matrix(df: pd.DataFrame, figsize=(12, 10), cmap='coolwarm',
     sns.heatmap(df.corr(), annot=True, cmap=cmap, center=0, fmt=fmt, square=True)  # Mostra la matrice di correlazione
     plt.tight_layout()
     plt.show()
-
-def plot_outliers(df: pd.DataFrame, column: str):
-    plt.figure(figsize=(10, 6))
-    sns.boxplot(x=df[column])  # Mostra un boxplot per la colonna specificata
-    plt.show()
-
-
